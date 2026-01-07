@@ -1,0 +1,6 @@
+module_name: mb1043 ultrasonic sensor
+serial_config:
+    - command: mb1043 start -d ${SERIAL_DEV}
+      port_config_param:
+        name: SENS_MB1043_CFG
+        group: Sensors

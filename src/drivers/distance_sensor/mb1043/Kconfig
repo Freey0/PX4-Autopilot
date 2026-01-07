@@ -1,0 +1,5 @@
+menuconfig DRIVERS_DISTANCE_SENSOR_MB1043
+	bool "mb1043 ultrasound sensor"
+	default n
+	---help---
+		Enable support for mb1043 ultrasound sensor
