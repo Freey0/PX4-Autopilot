@@ -140,8 +140,14 @@ UavcanBatteryBridge::battery_sub_cb(const uavcan::ReceivedDataStructure<uavcan::
 
 	// _battery_status[instance].is_powering_off = msg.;
 
-	determineWarning(_battery_status[instance].remaining);
-	_battery_status[instance].warning = _warning;
+	if (msg.status_flags & uavcan::equipment::power::BatteryInfo::STATUS_FLAG_CHARGING) {
+		_warning = battery_status_s::WARNING_NONE; // Reset sticky warning while charging
+		_battery_status[instance].warning = battery_status_s::STATE_CHARGING;
+
+	} else {
+		determineWarning(_battery_status[instance].remaining);
+		_battery_status[instance].warning = _warning;
+	}
 
 	if (_batt_update_mod[instance] == BatteryDataType::Raw) {
 		publish(msg.getSrcNodeID().get(), &_battery_status[instance]);
@@ -240,6 +246,10 @@ UavcanBatteryBridge::filterData(const uavcan::ReceivedDataStructure<uavcan::equi
 	_battery_status[instance].temperature = msg.temperature + atmosphere::kAbsoluteNullCelsius; // Kelvin to Celsius
 	_battery_status[instance].serial_number = msg.model_instance_id;
 	_battery_status[instance].id = msg.getSrcNodeID().get(); // overwrite zeroed index from _battery
+
+	if (msg.status_flags & uavcan::equipment::power::BatteryInfo::STATUS_FLAG_CHARGING) {
+		_battery_status[instance].warning = battery_status_s::STATE_CHARGING;
+	}
 
 	publish(msg.getSrcNodeID().get(), &_battery_status[instance]);
 }
